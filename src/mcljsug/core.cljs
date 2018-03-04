@@ -1,25 +1,27 @@
 (ns mcljsug.core
-    (:require [reagent.core :as reagent :refer [atom]]))
+    (:require [reagent.core :as reagent]
+              [re-frame.core :as re-frame]
+              [mcljsug.events :as events]
+              [mcljsug.routes :as routes]
+              [mcljsug.components.app :as app]
+              [mcljsug.config :as config]))
 
-(enable-console-print!)
+(defn dev-setup []
+  (when config/debug?
+    (enable-console-print!)))
 
-(println "This text is printed from src/mcljsug/core.cljs. Go ahead and edit it and see reloading in action.")
+(defn mount-root []
+  (re-frame/clear-subscription-cache!)
+  (reagent/render [app/main-panel]
+                  (.getElementById js/document "app")))
 
-;; define your app data so that it doesn't get over-written on reload
+(defn init! []
+  (routes/app-routes)
+  (re-frame/dispatch-sync [::events/initialize-db])
+  (dev-setup)
+  (mount-root))
 
-(defonce app-state (atom {:text "Hello world!"}))
-
-
-(defn hello-world []
-  [:div
-   [:h1 (:text @app-state)]
-   [:h3 "Edit this and watch it change!"]])
-
-(reagent/render-component [hello-world]
-                          (. js/document (getElementById "app")))
+(init!)
 
 (defn on-js-reload []
-  ;; optionally touch your app-state to force rerendering depending on
-  ;; your application
-  ;; (swap! app-state update-in [:__figwheel_counter] inc)
-)
+  (mount-root))

@@ -12,9 +12,12 @@
   :min-lein-version "2.7.1"
 
   :dependencies [[org.clojure/clojure "1.9.0"]
-                 [org.clojure/clojurescript "1.9.946"]
-                 [org.clojure/core.async  "0.4.474"]
-                 [reagent "0.7.0"]]
+                 [org.clojure/clojurescript "1.10.64"]
+                 [reagent "0.7.0"]
+                 [re-frame "0.10.5"]
+                 [day8.re-frame/http-fx "0.1.5"]
+                 [secretary "1.2.3"]
+                 [cljsjs/react-bootstrap "0.31.5-0"]]
 
   :plugins [[lein-figwheel "0.5.15"]
             [lein-cljsbuild "1.1.7" :exclusions [[org.clojure/clojure]]]]
@@ -42,7 +45,9 @@
                            :source-map-timestamp true
                            ;; To console.log CLJS data-structures make sure you enable devtools in Chrome
                            ;; https://github.com/binaryage/cljs-devtools
-                           :preloads [devtools.preload]}}
+                           :preloads [devtools.preload
+                                      day8.re-frame-10x.preload]
+                           :closure-defines {"re_frame.trace.trace_enabled_QMARK_" true}}}
                ;; This next build is a compressed minified build for
                ;; production. You can build this with:
                ;; lein cljsbuild once min
@@ -60,7 +65,7 @@
              :css-dirs ["resources/public/css"] ;; watch and update CSS
 
              ;; Start an nREPL server into the running figwheel process
-             ;; :nrepl-port 7888
+             :nrepl-port 7888}
 
              ;; Server Ring Handler (optional)
              ;; if you want to embed a ring handler into the figwheel http-kit
@@ -90,7 +95,7 @@
 
              ;; to pipe all the output to the repl
              ;; :server-logfile false
-             }
+
 
 
   ;; Setting up nREPL for Figwheel and ClojureScript dev
@@ -98,7 +103,8 @@
   ;; https://github.com/bhauman/lein-figwheel/wiki/Using-the-Figwheel-REPL-within-NRepl
   :profiles {:dev {:dependencies [[binaryage/devtools "0.9.9"]
                                   [figwheel-sidecar "0.5.15"]
-                                  [com.cemerick/piggieback "0.2.2"]]
+                                  [com.cemerick/piggieback "0.2.2"]
+                                  [day8.re-frame/re-frame-10x "0.2.0"]]
                    ;; need to add dev source path here to get user.clj loaded
                    :source-paths ["src" "dev"]
                    ;; for CIDER
